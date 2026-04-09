@@ -1,1 +1,3 @@
 *.Identifier
+.env
+.DS_Store
