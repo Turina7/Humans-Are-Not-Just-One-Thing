@@ -7,7 +7,7 @@ from collections import Counter
 from itertools import combinations
 
 # ── Load data ────────────────────────────────────────────
-DATA_PATH = Path("../data/annotations_output_simplified.json")
+DATA_PATH = Path("../data/annotations_v2.json")
 OUTPUT_DIR = Path("../data/figures")
 OUTPUT_DIR.mkdir(exist_ok=True)
 
@@ -18,9 +18,10 @@ with DATA_PATH.open("r", encoding="utf-8") as f:
 def get_cq1_categories(subject, exclude=["geography", "species"]):
     ids = subject.get("identity_markers", {})
     return sorted([
-        c for c, v in ids.items()
-        if c not in exclude
-        and str((v or {}).get("CQ1", "")).strip().lower() == "yes"
+        c.lower().replace(" ", "_") for c, v in ids.items()
+        if c.lower().replace(" ", "_") not in exclude
+        and str((v or {}).get("DirectScore", "")).strip().lower() == "yes"
+        and str((v or {}).get("AlternateScore", "")).strip().lower() == "no"
     ])
 
 # ── GRAPH 1: Category prevalence (CQ1=Yes) ──────────────
@@ -36,15 +37,18 @@ top_categories = category_counts.most_common(12)
 labels = [c[0].replace("_", " ").title() for c in top_categories]
 values = [c[1] for c in top_categories]
 
-colors = ["#C0392B" if v == max(values) else "#2E86C1" for v in values]
+# Reverse both together so they stay in sync
+labels_rev = labels[::-1]
+values_rev = values[::-1]
+colors_rev = ["#C0392B" if v == max(values) else "#2E86C1" for v in values_rev]
 
 fig, ax = plt.subplots(figsize=(12, 6))
-bars = ax.barh(labels[::-1], values[::-1], color=colors[::-1])
+bars = ax.barh(labels_rev, values_rev, color=colors_rev)
 ax.set_xlabel("Number of subjects where identity caused harm (CQ1=Yes)", fontsize=11)
 ax.set_title("Most Common Identity Categories in Workplace AI Harm\n(filtered: CQ1=Yes, excluding geography & species)", fontsize=13, fontweight="bold")
 ax.axvline(x=0, color="black", linewidth=0.5)
 
-for bar, val in zip(bars, values[::-1]):
+for bar, val in zip(bars, values_rev):
     ax.text(bar.get_width() + 0.3, bar.get_y() + bar.get_height()/2,
             str(val), va="center", fontsize=10)
 
@@ -52,7 +56,6 @@ plt.tight_layout()
 plt.savefig(OUTPUT_DIR / "graph1_category_prevalence.png", dpi=150)
 plt.close()
 print("  Saved graph1_category_prevalence.png")
-
 # ── GRAPH 2: Top intersections heatmap ───────────────────
 print("Building Graph 2 — Intersection heatmap...")
 
@@ -67,8 +70,12 @@ for rec in data:
                 if i != j and a in cats and b in cats:
                     matrix[i][j] += 1
 
+# Mask upper triangle including diagonal
+mask = np.triu(np.ones_like(matrix, dtype=bool), k=0)
+matrix_masked = np.where(mask, np.nan, matrix.astype(float))
+
 fig, ax = plt.subplots(figsize=(10, 8))
-im = ax.imshow(matrix, cmap="Blues")
+im = ax.imshow(matrix_masked, cmap="Blues")  # ← use matrix_masked here
 
 tick_labels = [c.replace("_", " ").title() for c in all_cats]
 ax.set_xticks(range(len(all_cats)))
@@ -78,7 +85,7 @@ ax.set_yticklabels(tick_labels, fontsize=10)
 
 for i in range(len(all_cats)):
     for j in range(len(all_cats)):
-        if matrix[i][j] > 0:
+        if not mask[i][j] and matrix[i][j] > 0:
             ax.text(j, i, str(matrix[i][j]),
                     ha="center", va="center",
                     color="white" if matrix[i][j] > matrix.max()*0.6 else "black",
@@ -126,28 +133,6 @@ plt.savefig(OUTPUT_DIR / "graph3_top_pairs.png", dpi=150)
 plt.close()
 print("  Saved graph3_top_pairs.png")
 
-# ── GRAPH 4: AI vs non-AI incidents ─────────────────────
-print("Building Graph 4 — AI incident filter...")
-
-ai_yes = sum(1 for rec in data if str(rec.get("is_ai_incident", "")).strip().lower() == "yes")
-ai_no = sum(1 for rec in data if str(rec.get("is_ai_incident", "")).strip().lower() == "no")
-ai_unknown = len(data) - ai_yes - ai_no
-
-fig, ax = plt.subplots(figsize=(7, 7))
-sizes = [ai_yes, ai_no, ai_unknown]
-labels_pie = [f"AI Incident\n({ai_yes})", f"Not AI Incident\n({ai_no})", f"Unknown\n({ai_unknown})"]
-colors_pie = ["#2E86C1", "#C0392B", "#AAB7B8"]
-explode = (0.05, 0, 0)
-
-ax.pie(sizes, labels=labels_pie, colors=colors_pie, explode=explode,
-       autopct="%1.1f%%", startangle=140, textprops={"fontsize": 12})
-ax.set_title("Proportion of AI vs Non-AI Incidents\nin Workplace Dataset",
-             fontsize=13, fontweight="bold")
-
-plt.tight_layout()
-plt.savefig(OUTPUT_DIR / "graph4_ai_filter.png", dpi=150)
-plt.close()
-print("  Saved graph4_ai_filter.png")
 
 print("\n✅ All graphs saved to data/figures/")
 print("Open the figures folder to view them!")
