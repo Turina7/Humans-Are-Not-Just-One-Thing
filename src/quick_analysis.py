@@ -1,8 +1,11 @@
 import json
 import matplotlib.pyplot as plt
 import numpy as np
+import seaborn as sns
+import pandas as pd
 from pathlib import Path
 from collections import Counter
+from itertools import combinations
 
 # ── Configuration ────────────────────────────────────────────
 DATA_PATH = Path("../data/annotations_v2.json")
@@ -20,7 +23,7 @@ def get_cq1_categories(subject):
         and str((v or {}).get("CQ2", "")).strip().lower() == "no"
     ])
 
-# ── CQ1 & CQ2: DATA RETENTION (El que demanaves del CQ2) ──────
+# ── CQ1 & CQ2: DATA RETENTION ────────────────────────────────
 print("Processing CQ Filter Stats...")
 total_markers = 0
 retained_markers = 0
@@ -43,7 +46,7 @@ for i, v in enumerate([total_markers, retained_markers]):
 plt.savefig(OUTPUT_DIR / "graph0_CQ_filter_impact.png", dpi=150)
 plt.close()
 
-# ── RQ1: Frequency (Amb el top en VERMELL) ───────────────────
+# ── RQ1: Frequency (Top in RED) ──────────────────────────────
 print("Processing RQ1...")
 category_counts = Counter()
 for rec in data:
@@ -55,8 +58,6 @@ top_categories = category_counts.most_common(12)
 if top_categories:
     labels = [c[0].replace("_", " ").title() for c in top_categories]
     values = [c[1] for c in top_categories]
-    
-    # Escala de colors: Vermell pel primer, Blau per la resta
     colors = ['#C0392B'] + ['#2E86C1'] * (len(values) - 1)
     
     fig, ax = plt.subplots(figsize=(12, 6))
@@ -68,7 +69,40 @@ if top_categories:
     plt.savefig(OUTPUT_DIR / "graph1_RQ1_frequency.png", dpi=150)
     plt.close()
 
-# ── RQ3a: Simplification (Amb els NÚMEROS parentitzats) ──────
+# ── RQ2: Intersection Heatmap (NEW SECTION) ──────────────────
+print("Processing RQ2...")
+# Extract all pairs of intersectional categories per incident
+intersections = []
+for rec in data:
+    incident_cats = set()
+    for subj in rec.get("subjects", []):
+        for cat in get_cq1_categories(subj):
+            incident_cats.add(cat)
+    
+    # If an incident has multiple categories, it's intersectional
+    if len(incident_cats) >= 2:
+        for combo in combinations(sorted(list(incident_cats)), 2):
+            intersections.append(combo)
+
+if intersections:
+    pair_counts = Counter(intersections)
+    unique_cats = sorted(list(set([c for pair in intersections for c in pair])))
+    
+    # Create a matrix for the heatmap
+    matrix = pd.DataFrame(0, index=unique_cats, columns=unique_cats)
+    for (c1, c2), count in pair_counts.items():
+        matrix.loc[c1, c2] = count
+        matrix.loc[c2, c1] = count # Mirror for the heatmap
+
+    plt.figure(figsize=(10, 8))
+    sns.heatmap(matrix, annot=True, cmap="YlGnBu", cbar_kws={'label': 'Number of Incidents'})
+    plt.title("RQ2: Intersectional Identity Overlaps\n(Causal Co-occurrences)", fontsize=13, fontweight="bold")
+    plt.xticks(rotation=45, ha='right')
+    plt.tight_layout()
+    plt.savefig(OUTPUT_DIR / "graph2_RQ2_intersections.png", dpi=150)
+    plt.close()
+
+# ── RQ3a: Simplification (Numbers in labels) ─────────────────
 print("Processing RQ3a...")
 explicit, inferred = 0, 0
 for rec in data:
@@ -83,7 +117,6 @@ for rec in data:
 
 if explicit + inferred > 0:
     fig, ax = plt.subplots(figsize=(8, 7))
-    # Aquí posem els noms amb els números tal com t'agradava
     labels = [f'Explicit ({explicit})', f'Inferred ({inferred})']
     ax.pie([explicit, inferred], labels=labels, autopct='%1.1f%%',
            colors=['#2E86C1', '#F39C12'], explode=(0, 0.1), shadow=True, startangle=140)
@@ -104,7 +137,6 @@ for rec in data:
                 if pp in ["Privileged", "Oppressed"]: power_counts[pp] += 1
 
 fig, ax = plt.subplots(figsize=(8, 6))
-# Vermell per Oppressed, Verd per Privileged
 ax.bar(power_counts.keys(), power_counts.values(), color=['#E74C3C', '#27AE60'])
 ax.set_title("RQ3b: Identity Power Dynamics", fontweight="bold")
 plt.savefig(OUTPUT_DIR / "graph4_RQ3b_representation.png", dpi=150)
