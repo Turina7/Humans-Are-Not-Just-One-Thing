@@ -21,7 +21,7 @@ IDENTITY_CATEGORIES = """
 1.  Race             - e.g., White (Privileged), Black (Oppressed)
 2.  Gender           - e.g., Male (P), Female (O)
 3.  Gender Identity  - e.g., Cisgender (P), Trans (O)
-4.  Class            - e.g., Upper Class (P), Working Class (O)
+4.  Class             - e.g., Upper Class (P), Working Class (O)
 5.  Sexuality        - e.g., Heterosexual (P), Gay (O)
 6.  Nationality      - e.g., German (P), Syrian (O)
 7.  Ability          - e.g., Able-bodied (P), Visually Impaired (O)
@@ -47,7 +47,7 @@ IDENTITY_CATEGORIES = """
 
 def build_prompt(incident_id, incident_title, incident_description, reports_text):
     return f"""You are an expert AI Incident Analyst. Your core expertise is the application of Kimberle Crenshaw's intersectionality theory to analyze AI incident reports.
-You are precise, context-sensitive, and avoid flattening identities into isolated categories. You reason causally and structurally, working backwards from the observed harm to trace contributing design choices or detection failures.
+You are precise, context-sensitive, and reason causally and structurally.
 
 INCIDENT ID: {incident_id}
 INCIDENT TITLE: {incident_title}
@@ -60,31 +60,18 @@ YOUR TASKS:
 
 TASK 1 - Identify harmed subjects:
 Extract every living entity (person, group, society) harmed by the AI system.
-Exclude organizations and inanimate objects.
 
-TASK 2 - For each subject, extract identity markers from these 25 categories ONLY if explicitly stated or clearly inferable:
+TASK 2 - For each subject, extract identity markers from these 25 categories:
 {IDENTITY_CATEGORIES}
 
 For each marker found, apply exactly these two counterfactual questions:
-CQ1: "Did this incident happen because the AI Subject was [identity value]?"
-CQ2: "Would this incident still have happened if the AI Subject was not [identity value]?"
-
-For marker_type, use ONLY:
-- "Explicit": the identity is directly stated word-for-word in the report text
-- "Inferred": the identity is not stated but is clearly and logically implied by specific context
-- Never include a marker if you are uncertain or guessing
-
-For power_position, use ONLY:
-- "Privileged": the marker aligns with the privileged examples above (P)
-- "Oppressed": the marker aligns with the oppressed examples above (O)
-- If ambiguous (e.g. middle class), use your best judgment and explain in source
+CQ1: Did this incident happen because the AI Subject was [identity value]?
+CQ2: Would this incident still have happened if the AI Subject was not [identity value]?
 
 TASK 3 - Assess deployer:
-Is there a company/organization deploying the AI system? If yes, what is its name?
+Identify the organization deploying the AI system.
 
-Return ONLY valid JSON in this exact structure.
-ONLY include identity categories where a marker was found.
-ONLY include subjects where at least one marker has CQ1=Yes AND CQ2=No:
+Return ONLY valid JSON in this exact structure:
 
 {{
   "incident_id": "{incident_id}",
@@ -99,15 +86,15 @@ ONLY include subjects where at least one marker has CQ1=Yes AND CQ2=No:
       "name": "exact name or descriptor from text",
       "type": "Individual / Group of persons / Society",
       "identity_markers": {{
-        "race": {{
-          "marker": "exact value e.g. Black",
+        "category_name": {{
+          "marker": "exact value",
           "marker_type": "Explicit or Inferred",
           "power_position": "Privileged or Oppressed",
-          "source": "direct quote if Explicit, or one sentence logical reasoning if Inferred",
+          "source": "reasoning or quote",
           "CQ1": "Yes or No",
           "CQ2": "Yes or No",
-          "reasoning": "backward reasoning from harm to system design failure - only fill if CQ1=Yes",
-          "MarkerHarm": "one concrete past-tense sentence about the exact harm - only fill if CQ1=Yes AND CQ2=No"
+          "reasoning": "backward reasoning from harm to system design failure",
+          "MarkerHarm": "Must follow this template: Because of [this identity], the subject was [harmful outcome]."
         }}
       }}
     }}
@@ -115,14 +102,11 @@ ONLY include subjects where at least one marker has CQ1=Yes AND CQ2=No:
 }}
 
 CRITICAL RULES:
-- Only include identity categories where you found actual evidence
-- CQ1=Yes means the identity directly caused or shaped the AI harm
-- CQ2=No means changing the identity would have prevented the specific harm
-- MarkerHarm must be a concrete past-tense sentence about the actual harm
-- marker_type must be Explicit or Inferred only
-- power_position must be Privileged or Oppressed only
-- Count this as ONE incident regardless of how many reports cover it
-- Return ONLY JSON, no markdown, no explanation
+- CQ1=Yes means: Did this incident happen because the AI Subject was [identity value]? (Answer: Yes)
+- CQ2=No means: Would this incident still have happened if the AI Subject was not [identity value]? (Answer: No)
+- MarkerHarm MUST follow the template: "Because of [identity], the subject was [harmful outcome]."
+- Example: "Because of being Black, the subject was wrongfully arrested due to facial recognition failure."
+- Return ONLY JSON.
 """
 
 def load_progress():
@@ -146,105 +130,52 @@ def save_results(results):
         json.dump(results, f, indent=2, ensure_ascii=False)
 
 def get_row_value(row, *possible_keys):
-    """Fetch CSV value with tolerant header matching (BOM/case/space safe)."""
-    normalized = {
-        (k or "").strip().lower().lstrip("\ufeff"): v
-        for k, v in row.items()
-    }
+    normalized = {(k or "").strip().lower().lstrip("\ufeff"): v for k, v in row.items()}
     for key in possible_keys:
         value = normalized.get(key.strip().lower())
-        if value is not None:
-            return value
+        if value is not None: return value
     raise KeyError(possible_keys[0])
 
 def read_csv_rows(path):
-    """Read CSV with encoding fallback for mixed legacy data."""
-    last_error = None
     for encoding in ("utf-8-sig", "cp1252", "latin-1"):
         try:
             with open(path, encoding=encoding, newline="") as f:
                 return list(csv.DictReader(f))
-        except UnicodeDecodeError as e:
-            last_error = e
-            continue
-    raise last_error
+        except: continue
+    return []
 
 def main():
-    # Load incidents
-    incidents = {}
-    for row in read_csv_rows(INPUT_INCIDENTS):
-        incident_id = get_row_value(row, "incident_id")
-        incidents[incident_id] = {
-            'title': get_row_value(row, "title"),
-            'description': get_row_value(row, "description")
-        }
-
-    # Group reports by incident — collect text AND source domains
+    incidents = {get_row_value(r, "incident_id"): r for r in read_csv_rows(INPUT_INCIDENTS)}
     incident_reports = defaultdict(list)
     incident_sources = defaultdict(set)
     for row in read_csv_rows(INPUT_REPORTS):
-        incident_id = get_row_value(row, "incident_id")
-        report_text = get_row_value(row, "text")
-        incident_reports[incident_id].append(report_text[:1500])
-        source_domain = get_row_value(row, "source_domain")
-        if source_domain:
-            incident_sources[incident_id].add(source_domain)
+        iid = get_row_value(row, "incident_id")
+        incident_reports[iid].append(get_row_value(row, "text")[:1500])
+        src = get_row_value(row, "source_domain")
+        if src: incident_sources[iid].add(src)
 
     done_ids = load_progress()
     results = load_results()
 
-    total = len(incident_reports)
-    print(f"Total incidents: {total}")
-    print(f"Already done: {len(done_ids)}")
-    print(f"Remaining: {total - len(done_ids)}")
-    print("---")
-
-    for i, (incident_id, reports) in enumerate(incident_reports.items()):
-        if incident_id in done_ids:
-            continue
-
-        incident_info = incidents.get(incident_id, {})
-        title = incident_info.get('title', 'Unknown')
-        description = incident_info.get('description', '')
-        sources = list(incident_sources.get(incident_id, []))
-
-        # Combine reports, limit total length
-        reports_text = "\n\n---REPORT---\n".join(reports)[:6000]
+    for i, (iid, reports) in enumerate(incident_reports.items()):
+        if iid in done_ids: continue
+        info = incidents.get(iid, {})
+        title = info.get('title', 'Unknown')
+        prompt = build_prompt(iid, title, info.get('description',''), "\n\n".join(reports)[:6000])
 
         try:
-            print(f"[{i+1}/{total}] Incident {incident_id} | {title[:60]}")
-
-            prompt = build_prompt(incident_id, title, description, reports_text)
-            response = client.models.generate_content(
-            model="gemini-3.1-flash-lite-preview",
-            contents=prompt
-            )
-            raw = response.text.strip()
-            raw = raw.removeprefix("```json").removesuffix("```").strip()
-
+            print(f"[{i+1}] Processing Incident {iid}...")
+            response = client.models.generate_content(model="gemini-2.0-flash", contents=prompt)
+            raw = response.text.strip().removeprefix("```json").removesuffix("```").strip()
             parsed = json.loads(raw)
-
-            # Always use sources from CSV, not from LLM
-            parsed['sources'] = sources
-
+            parsed['sources'] = list(incident_sources.get(iid, []))
             results.append(parsed)
-            done_ids.add(incident_id)
-
+            done_ids.add(iid)
             save_results(results)
             save_progress(done_ids)
-
-            time.sleep(4)
-
-        except json.JSONDecodeError as e:
-            print(f"  JSON error on incident {incident_id}: {e}")
-            continue
-
+            time.sleep(3)
         except Exception as e:
-            print(f"  Error on incident {incident_id}: {e}")
-            time.sleep(5)
-            continue
-
-    print("\n✅ Done! Results saved to annotations_v2.json")
+            print(f"Error {iid}: {e}")
 
 if __name__ == "__main__":
     main()
