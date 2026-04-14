@@ -103,5 +103,5 @@ python3 quick_analysis.py
 
 All analysis in this project is based on a **Causal Filter**:
 
-- **CQ1 (Necessity):** Does the identity marker cause the harm? *(Filter: YES)*
-- **CQ2 (Inherent Harm):** Is the harm unavoidable? *(Filter: NO)*
+- **CQ1:** Did this incident happen because the AI Subject was [identity value]? *(Filter: YES)*
+- **CQ2:** Would this incident still have happened if the AI Subject was not [identity value]? *(Filter: NO)*
