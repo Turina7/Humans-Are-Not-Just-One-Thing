@@ -14,8 +14,8 @@ def get_cq1_categories(subject, exclude=["geography", "species"]):
     return sorted([
         c.lower().replace(" ", "_") for c, v in ids.items()
         if c.lower().replace(" ", "_") not in exclude
-        and str((v or {}).get("DirectScore", "")).strip().lower() == "yes"
-        and str((v or {}).get("AlternateScore", "")).strip().lower() == "no"
+        and str((v or {}).get("CQ1", "")).strip().lower() == "yes"
+        and str((v or {}).get("CQ2", "")).strip().lower() == "no"
     ])
 
 def get_markers(subject, exclude=["geography", "species"]):
@@ -27,7 +27,6 @@ def get_markers(subject, exclude=["geography", "species"]):
     }
 
 # ── Count incidents (not subjects) per category ──────────
-# This matches the reference paper's formula exactly
 N = len(data)  # total incidents
 
 incident_category_counts = Counter()
@@ -47,15 +46,12 @@ for rec in data:
             if val:
                 values_in_incident.add((cat, val.lower().strip()))
 
-    # Count each category once per incident
     for cat in cats_in_incident:
         incident_category_counts[cat] += 1
 
-    # Count each value once per incident
     for val in values_in_incident:
         incident_value_counts[val] += 1
 
-    # Count pairs once per incident
     cat_list = sorted(cats_in_incident)
     for a, b in combinations(cat_list, 2):
         incident_pair_counts[(a, b)] += 1
@@ -125,7 +121,7 @@ for rec in data:
     for subj in rec.get("subjects", []):
         ids = subj.get("identity_markers", {})
         for cat, v in ids.items():
-            if str((v or {}).get("DirectScore", "")).strip().lower() == "yes":
+            if str((v or {}).get("CQ1", "")).strip().lower() == "yes" and str((v or {}).get("CQ2", "")).strip().lower() == "no":
                 mt = str((v or {}).get("marker_type", "")).strip().lower()
                 if mt == "explicit":
                     explicit += 1
@@ -151,7 +147,7 @@ for rec in data:
     for subj in rec.get("subjects", []):
         ids = subj.get("identity_markers", {})
         for cat, v in ids.items():
-            if str((v or {}).get("DirectScore", "")).strip().lower() == "yes":
+            if str((v or {}).get("CQ1", "")).strip().lower() == "yes" and str((v or {}).get("CQ2", "")).strip().lower() == "no":
                 pp = str((v or {}).get("power_position", "")).strip()
                 for source in sources:
                     if pp in ["Privileged", "Oppressed"]:
@@ -161,8 +157,11 @@ privileged_total = sum(v["Privileged"] for v in source_power.values())
 oppressed_total = sum(v["Oppressed"] for v in source_power.values())
 total_power = privileged_total + oppressed_total
 
-print(f"Total Privileged markers in news: {privileged_total} ({privileged_total/total_power*100:.1f}%)")
-print(f"Total Oppressed markers in news:  {oppressed_total} ({oppressed_total/total_power*100:.1f}%)")
+if total_power > 0:
+    print(f"Total Privileged markers in news: {privileged_total} ({privileged_total/total_power*100:.1f}%)")
+    print(f"Total Oppressed markers in news:  {oppressed_total} ({oppressed_total/total_power*100:.1f}%)")
+else:
+    print("No power markers found.")
 print()
 print("Top sources by Oppressed coverage:")
 sorted_sources = sorted(source_power.items(), 
@@ -172,3 +171,40 @@ for source, counts in sorted_sources[:10]:
     if total > 0:
         opp_pct = counts["Oppressed"] / total * 100
         print(f"  {source:<35} Oppressed: {counts['Oppressed']:>4} ({opp_pct:.0f}%)")
+
+print()
+print("=" * 60)
+print("RQ4 — HIGH-PROFILE IMPACT (Most reported incidents)")
+print("=" * 60)
+print("Analyzing intersections in highly publicized AI failures...")
+print("-" * 60)
+
+# Busquem quins incidents tenen més "sources" (cobertura mediàtica)
+high_profile_incidents = sorted(
+    data, 
+    key=lambda x: len(x.get("sources", [])), 
+    reverse=True
+)[:5] # Agafem el Top 5
+
+for incident in high_profile_incidents:
+    inc_id = incident.get("incident_id")
+    inc_title = incident.get("incident_title", "Unknown Title")
+    sources_count = len(incident.get("sources", []))
+    
+    print(f"\n[Incident {inc_id}] {inc_title[:70]}... ({sources_count} sources)")
+    
+    intersections_found = False
+    for subj in incident.get("subjects", []):
+        cq1_cats = get_cq1_categories(subj)
+        
+        # RQ4 demana interseccions (2 o més categories)
+        if len(cq1_cats) >= 2: 
+            intersections_found = True
+            markers = get_markers(subj)
+            intersections = [f"{c}={markers[c].get('marker','')} ({str(markers[c].get('power_position',''))[:1]})" for c in cq1_cats]
+            print(f"  → Harmed Subject: {subj.get('name')}")
+            print(f"  → Intersection: {' + '.join(intersections)}")
+            
+    if not intersections_found:
+        print("  → No intersectional harms confirmed by CQ1/CQ2 filter.")
+print()

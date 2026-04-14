@@ -84,7 +84,7 @@ Is there a company/organization deploying the AI system? If yes, what is its nam
 
 Return ONLY valid JSON in this exact structure.
 ONLY include identity categories where a marker was found.
-ONLY include subjects where at least one marker has DirectScore=Yes AND AlternateScore=No:
+ONLY include subjects where at least one marker has CQ1=Yes AND CQ2=No:
 
 {{
   "incident_id": "{incident_id}",
@@ -104,10 +104,10 @@ ONLY include subjects where at least one marker has DirectScore=Yes AND Alternat
           "marker_type": "Explicit or Inferred",
           "power_position": "Privileged or Oppressed",
           "source": "direct quote if Explicit, or one sentence logical reasoning if Inferred",
-          "DirectScore": "Yes or No",
-          "AlternateScore": "Yes or No",
-          "reasoning": "backward reasoning from harm to system design failure - only fill if DirectScore=Yes",
-          "MarkerHarm": "one concrete past-tense sentence about the exact harm - only fill if DirectScore=Yes AND AlternateScore=No"
+          "CQ1": "Yes or No",
+          "CQ2": "Yes or No",
+          "reasoning": "backward reasoning from harm to system design failure - only fill if CQ1=Yes",
+          "MarkerHarm": "one concrete past-tense sentence about the exact harm - only fill if CQ1=Yes AND CQ2=No"
         }}
       }}
     }}
@@ -116,8 +116,8 @@ ONLY include subjects where at least one marker has DirectScore=Yes AND Alternat
 
 CRITICAL RULES:
 - Only include identity categories where you found actual evidence
-- DirectScore=Yes means the identity caused or shaped the AI harm
-- AlternateScore=No means changing the identity would have changed the outcome
+- CQ1=Yes means the identity directly caused or shaped the AI harm
+- CQ2=No means changing the identity would have prevented the specific harm
 - MarkerHarm must be a concrete past-tense sentence about the actual harm
 - marker_type must be Explicit or Inferred only
 - power_position must be Privileged or Oppressed only
