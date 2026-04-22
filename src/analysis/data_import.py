@@ -1,4 +1,5 @@
-import pandas as pd 
+import pandas as pd
+
 
 def filter_causal_categories(ai_subjects):
     """
@@ -16,11 +17,11 @@ def filter_causal_categories(ai_subjects):
     for subject_key, subject_value in ai_subjects.items():
         categories = subject_value.get("Categories", {})
         filtered_categories = {}
-        
+
         for cat_key, cat_value in categories.items():
             if not isinstance(cat_value, dict):
                 continue
-                
+
             marker = cat_value.get("Marker", "Not mentioned")
             # Convertim a lowercase i traiem espais per evitar errors de format de l'LLM
             cq1 = str(cat_value.get("CQ1", "")).strip().lower()
@@ -36,13 +37,15 @@ def filter_causal_categories(ai_subjects):
 
     return filtered_subjects
 
+
 def get_dataset():
-    df = pd.read_json('./data/incidents_full_set_27112025_gpt5_1.json')
+    df = pd.read_json("./data/incidents_full_set_27112025_gpt5_1.json")
     df["AI_Subjects"] = df["AI_Subjects"].apply(filter_causal_categories)
     return df
 
+
 if __name__ == "__main__":
-    pd.set_option('display.max_columns', None)
-    
+    pd.set_option("display.max_columns", None)
+
     df = get_dataset()
     print(df.head(5))
