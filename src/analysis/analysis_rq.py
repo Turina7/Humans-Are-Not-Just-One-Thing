@@ -18,41 +18,51 @@ REDUNDANT_PAIRS = {
     ("ability", "disabled", "health_status", "physically disabled"),
 }
 
+
 def is_redundant_pair(c1, v1, c2, v2):
-    return (
-        (c1, v1, c2, v2) in REDUNDANT_PAIRS or
-        (c2, v2, c1, v1) in REDUNDANT_PAIRS
-    )
+    return (c1, v1, c2, v2) in REDUNDANT_PAIRS or (c2, v2, c1, v1) in REDUNDANT_PAIRS
+
 
 def normalize_marker(cat, marker):
     marker = marker.lower().strip()
     cat = cat.lower().replace(" ", "_")
     if cat == "class":
-        if marker in ["working class", "low-income", "low income",
-                      "lower class", "poor", "poverty"]:
+        if marker in [
+            "working class",
+            "low-income",
+            "low income",
+            "lower class",
+            "poor",
+            "poverty",
+        ]:
             return "lower class"
         if marker in ["upper class", "wealthy", "affluent", "elite"]:
             return "upper class"
     return marker
 
+
 def get_cq1_categories(subject, exclude=["geography", "species"]):
     ids = subject.get("identity_markers", {})
-    return sorted([
-        c.lower().replace(" ", "_") for c, v in ids.items()
-        if c.lower().replace(" ", "_") not in exclude
-        and isinstance(v, dict)
-        and str(v.get("DirectScore", "")).strip().lower() == "yes"
-        and str(v.get("AlternateScore", "")).strip().lower() == "no"
-    ])
+    return sorted(
+        [
+            c.lower().replace(" ", "_")
+            for c, v in ids.items()
+            if c.lower().replace(" ", "_") not in exclude
+            and isinstance(v, dict)
+            and str(v.get("DirectScore", "")).strip().lower() == "yes"
+            and str(v.get("AlternateScore", "")).strip().lower() == "no"
+        ]
+    )
+
 
 def get_markers(subject, exclude=["geography", "species"]):
     ids = subject.get("identity_markers", {})
     return {
         c.lower().replace(" ", "_"): v
         for c, v in ids.items()
-        if c.lower().replace(" ", "_") not in exclude
-        and isinstance(v, dict)
+        if c.lower().replace(" ", "_") not in exclude and isinstance(v, dict)
     }
+
 
 N = len(data)
 
@@ -93,8 +103,10 @@ for rec in data:
                 continue
             if not isinstance(v, dict):
                 continue
-            if (str(v.get("DirectScore", "")).strip().lower() == "yes"
-                    and str(v.get("AlternateScore", "")).strip().lower() == "no"):
+            if (
+                str(v.get("DirectScore", "")).strip().lower() == "yes"
+                and str(v.get("AlternateScore", "")).strip().lower() == "no"
+            ):
                 marker = normalize_marker(cat_norm, str(v.get("marker", "")))
                 if marker:
                     subj_values.add((cat_norm, marker))
@@ -227,12 +239,17 @@ privileged_total = sum(v["Privileged"] for v in source_power.values())
 oppressed_total = sum(v["Oppressed"] for v in source_power.values())
 total_power = privileged_total + oppressed_total
 
-print(f"Total Privileged markers in news: {privileged_total} ({privileged_total/total_power*100:.1f}%)")
-print(f"Total Oppressed markers in news:  {oppressed_total} ({oppressed_total/total_power*100:.1f}%)")
+print(
+    f"Total Privileged markers in news: {privileged_total} ({privileged_total/total_power*100:.1f}%)"
+)
+print(
+    f"Total Oppressed markers in news:  {oppressed_total} ({oppressed_total/total_power*100:.1f}%)"
+)
 print()
 print("Top sources by Oppressed coverage:")
-sorted_sources = sorted(source_power.items(),
-                        key=lambda x: x[1]["Oppressed"], reverse=True)
+sorted_sources = sorted(
+    source_power.items(), key=lambda x: x[1]["Oppressed"], reverse=True
+)
 for source, counts in sorted_sources[:10]:
     total = counts["Privileged"] + counts["Oppressed"]
     if total > 0:

@@ -87,6 +87,7 @@ IDENTITY_CATEGORIES = """
 25. Neurodiversity   - Use ONLY: "Autistic", "ADHD", "Dyslexic"
 """
 
+
 def build_prompt(incident_id, incident_title, incident_description, reports_text):
     return f"""You are an expert AI Incident Analyst. Your core expertise is the application of Kimberle Crenshaw's intersectionality theory to analyze AI incident reports.
 You are precise, context-sensitive, and avoid flattening identities into isolated categories. To assess how identity contributes to harm, you reason causally and structurally. You often work backwards from the observed harm to trace contributing design choices or detection failures. This approach is similar to Fault Tree Analysis, where analysts start with a failure and identify underlying conditions or assumptions that allowed it to occur.
@@ -247,15 +248,19 @@ CRITICAL RULES:
 - Count as ONE incident regardless of report count
 - Return ONLY JSON, no markdown, no explanation
 """
+
+
 def load_progress():
     if os.path.exists(PROGRESS_FILE):
         with open(PROGRESS_FILE) as f:
             return set(json.load(f))
     return set()
 
+
 def save_progress(done_ids):
     with open(PROGRESS_FILE, "w") as f:
         json.dump(list(done_ids), f)
+
 
 def load_results():
     if os.path.exists(OUTPUT_FILE):
@@ -263,20 +268,20 @@ def load_results():
             return json.load(f)
     return []
 
+
 def save_results(results):
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
         json.dump(results, f, indent=2, ensure_ascii=False)
 
+
 def get_row_value(row, *possible_keys):
-    normalized = {
-        (k or "").strip().lower().lstrip("\ufeff"): v
-        for k, v in row.items()
-    }
+    normalized = {(k or "").strip().lower().lstrip("\ufeff"): v for k, v in row.items()}
     for key in possible_keys:
         value = normalized.get(key.strip().lower())
         if value is not None:
             return value
     raise KeyError(possible_keys[0])
+
 
 def read_csv_rows(path):
     last_error = None
@@ -289,13 +294,14 @@ def read_csv_rows(path):
             continue
     raise last_error
 
+
 def main():
     incidents = {}
     for row in read_csv_rows(INPUT_INCIDENTS):
         incident_id = get_row_value(row, "incident_id")
         incidents[incident_id] = {
-            'title': get_row_value(row, "title"),
-            'description': get_row_value(row, "description")
+            "title": get_row_value(row, "title"),
+            "description": get_row_value(row, "description"),
         }
 
     incident_reports = defaultdict(list)
@@ -322,8 +328,8 @@ def main():
             continue
 
         incident_info = incidents.get(incident_id, {})
-        title = incident_info.get('title', 'Unknown')
-        description = incident_info.get('description', '')
+        title = incident_info.get("title", "Unknown")
+        description = incident_info.get("description", "")
         sources = list(incident_sources.get(incident_id, []))
         reports_text = "\n\n---REPORT---\n".join(reports)[:6000]
 
@@ -331,13 +337,12 @@ def main():
             print(f"[{i+1}/{total}] Incident {incident_id} | {title[:60]}")
             prompt = build_prompt(incident_id, title, description, reports_text)
             response = client.models.generate_content(
-                model="gemini-3.1-flash-lite-preview",
-                contents=prompt
+                model="gemini-3.1-flash-lite-preview", contents=prompt
             )
             raw = response.text.strip()
             raw = raw.removeprefix("```json").removesuffix("```").strip()
             parsed = json.loads(raw)
-            parsed['sources'] = sources
+            parsed["sources"] = sources
             results.append(parsed)
             done_ids.add(incident_id)
             save_results(results)
@@ -363,8 +368,8 @@ if __name__ == "__main__":
     for row in read_csv_rows(INPUT_INCIDENTS):
         incident_id = get_row_value(row, "incident_id")
         incidents[incident_id] = {
-            'title': get_row_value(row, "title"),
-            'description': get_row_value(row, "description")
+            "title": get_row_value(row, "title"),
+            "description": get_row_value(row, "description"),
         }
 
     incident_reports = defaultdict(list)
@@ -378,24 +383,23 @@ if __name__ == "__main__":
             incident_sources[incident_id].add(source_domain)
 
     if TEST_MODE:
-        test_id = '11'
+        test_id = "11"
         incident_info = incidents.get(test_id, {})
         reports_text = "\n\n---REPORT---\n".join(incident_reports[test_id])[:6000]
         sources = list(incident_sources.get(test_id, []))
 
         prompt = build_prompt(
             test_id,
-            incident_info.get('title', 'Unknown'),
-            incident_info.get('description', ''),
-            reports_text
+            incident_info.get("title", "Unknown"),
+            incident_info.get("description", ""),
+            reports_text,
         )
         response = client.models.generate_content(
-            model="gemini-3.1-flash-lite-preview",
-            contents=prompt
+            model="gemini-3.1-flash-lite-preview", contents=prompt
         )
         raw = response.text.strip().removeprefix("```json").removesuffix("```").strip()
         parsed = json.loads(raw)
-        parsed['sources'] = sources
+        parsed["sources"] = sources
         print(json.dumps(parsed, indent=2, ensure_ascii=False))
     else:
         main()
