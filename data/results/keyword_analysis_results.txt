@@ -1,0 +1,251 @@
+============================================================
+ 📝 TEXT MINING: THE VOCABULARY OF OPPRESSION
+============================================================
+
+📂 CATEGORY: ABILITY
+----------------------------------------
+   • disability      (6 times)
+   • disabled        (6 times)
+   • failed          (3 times)
+   • directly        (3 times)
+   • status          (3 times)
+   • surveillance    (3 times)
+   • physical        (3 times)
+   • accurately      (2 times)
+   • subjected       (2 times)
+   • discriminatory  (2 times)
+
+📂 CATEGORY: AGE
+----------------------------------------
+   • age             (10 times)
+   • adolescent      (9 times)
+   • subjected       (8 times)
+   • risk            (7 times)
+   • children        (7 times)
+   • automated       (6 times)
+   • high            (6 times)
+   • facial          (6 times)
+   • account         (6 times)
+   • older           (6 times)
+
+📂 CATEGORY: CLASS
+----------------------------------------
+   • automated       (17 times)
+   • income          (17 times)
+   • financial       (16 times)
+   • subjected       (13 times)
+   • workers         (12 times)
+   • economic        (12 times)
+   • lower           (8 times)
+   • low             (8 times)
+   • prioritized     (7 times)
+   • surveillance    (7 times)
+
+📂 CATEGORY: EDUCATION
+----------------------------------------
+   • professional    (18 times)
+   • automated       (9 times)
+   • academic        (9 times)
+   • student         (8 times)
+   • students        (7 times)
+   • status          (7 times)
+   • directly        (5 times)
+   • reliance        (5 times)
+   • legal           (5 times)
+   • output          (4 times)
+
+📂 CATEGORY: FAMILY STATUS
+----------------------------------------
+   • essential       (3 times)
+   • failure         (3 times)
+   • family          (3 times)
+   • single          (3 times)
+   • financial       (3 times)
+   • lack            (2 times)
+   • children        (2 times)
+   • account         (2 times)
+   • specific        (2 times)
+   • situation       (2 times)
+
+📂 CATEGORY: GENDER
+----------------------------------------
+   • female          (12 times)
+   • gendered        (8 times)
+   • failed          (7 times)
+   • risk            (7 times)
+   • male            (7 times)
+   • gender          (5 times)
+   • recognition     (5 times)
+   • specific        (4 times)
+   • disproportionately (4 times)
+   • penalized       (3 times)
+
+📂 CATEGORY: GENDER IDENTITY
+----------------------------------------
+   • transgender     (2 times)
+   • facial          (1 times)
+   • recognition     (1 times)
+   • automatically   (1 times)
+   • flagged         (1 times)
+   • deactivated     (1 times)
+   • drivers         (1 times)
+   • whose           (1 times)
+   • physical        (1 times)
+   • appearance      (1 times)
+
+📂 CATEGORY: GEOGRAPHY
+----------------------------------------
+   • urban           (14 times)
+   • surveillance    (8 times)
+   • subjected       (5 times)
+   • high            (5 times)
+   • data            (5 times)
+   • specific        (4 times)
+   • residents       (4 times)
+   • police          (4 times)
+   • failed          (3 times)
+   • areas           (3 times)
+
+📂 CATEGORY: HEALTH STATUS
+----------------------------------------
+   • health          (6 times)
+   • patients        (4 times)
+   • risk            (4 times)
+   • automated       (3 times)
+   • high            (3 times)
+   • status          (3 times)
+   • failed          (3 times)
+   • chronic         (3 times)
+   • pain            (3 times)
+   • provided        (3 times)
+
+📂 CATEGORY: HERITAGE
+----------------------------------------
+   • facial          (2 times)
+   • characteristics (2 times)
+   • white           (2 times)
+   • bias            (1 times)
+   • against         (1 times)
+   • asian           (1 times)
+   • prevented       (1 times)
+   • successfully    (1 times)
+   • submitting      (1 times)
+   • valid           (1 times)
+
+📂 CATEGORY: IMMIGRATION STATUS
+----------------------------------------
+   • legal           (3 times)
+   • automated       (3 times)
+   • status          (3 times)
+   • visa            (2 times)
+   • lacked          (2 times)
+   • access          (2 times)
+   • subjected       (2 times)
+   • applicants      (2 times)
+   • process         (2 times)
+   • entry           (2 times)
+
+📂 CATEGORY: INDIGENEITY
+----------------------------------------
+   • human           (2 times)
+   • robot           (1 times)
+   • functioned      (1 times)
+   • tool            (1 times)
+   • colonial        (1 times)
+   • style           (1 times)
+   • oversight       (1 times)
+   • replacing       (1 times)
+   • outreach        (1 times)
+   • non             (1 times)
+
+📂 CATEGORY: LANGUAGE
+----------------------------------------
+   • native          (5 times)
+   • language        (5 times)
+   • english         (4 times)
+   • non             (3 times)
+   • speakers        (3 times)
+   • patterns        (3 times)
+   • speech          (2 times)
+   • causing         (2 times)
+   • downgraded      (1 times)
+   • deviated        (1 times)
+
+📂 CATEGORY: NATIONALITY
+----------------------------------------
+   • national        (4 times)
+   • targeted        (3 times)
+   • individuals     (3 times)
+   • local           (3 times)
+   • benefit         (2 times)
+   • chinese         (2 times)
+   • specific        (2 times)
+   • trauma          (2 times)
+   • thousands       (2 times)
+   • effectively     (2 times)
+
+📂 CATEGORY: NEURODIVERSITY
+----------------------------------------
+   • neurodivergent  (2 times)
+   • penalized       (2 times)
+   • tool            (2 times)
+   • misinterpreted  (1 times)
+   • atypical        (1 times)
+   • facial          (1 times)
+   • expressions     (1 times)
+   • nervous         (1 times)
+   • behavior        (1 times)
+   • lack            (1 times)
+
+📂 CATEGORY: POLITICAL IDENTITY
+----------------------------------------
+   • high            (6 times)
+   • political       (6 times)
+   • specifically    (4 times)
+   • public          (4 times)
+   • profile         (3 times)
+   • status          (3 times)
+   • target          (3 times)
+   • targeted        (3 times)
+   • standing        (3 times)
+   • platform        (2 times)
+
+📂 CATEGORY: RACE
+----------------------------------------
+   • black           (25 times)
+   • facial          (20 times)
+   • recognition     (16 times)
+   • color           (15 times)
+   • disproportionately (12 times)
+   • white           (12 times)
+   • bias            (12 times)
+   • racial          (12 times)
+   • data            (11 times)
+   • false           (11 times)
+
+📂 CATEGORY: RELIGION
+----------------------------------------
+   • muslim          (2 times)
+   • religious       (2 times)
+   • identity        (2 times)
+   • leveraged       (1 times)
+   • watchlist       (1 times)
+   • data            (1 times)
+   • disproportionately (1 times)
+   • subjected       (1 times)
+   • individuals     (1 times)
+   • discriminatory  (1 times)
+
+📂 CATEGORY: SKIN TONE
+----------------------------------------
+   • skin            (13 times)
+   • tones           (8 times)
+   • dark            (5 times)
+   • tone            (4 times)
+   • false           (4 times)
+   • accurately      (4 times)
+   • match           (3 times)
+   • directly        (3 times)
+   • misidentification (3 times)
+   • facial          (3 times)
+
