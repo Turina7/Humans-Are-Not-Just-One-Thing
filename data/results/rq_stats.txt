@@ -1,0 +1,40 @@
+============================================================
+RQ1 — CATEGORY PREVALENCE (N=285)
+------------------------------------------------------------
+race                          64        22.5%
+class                         60        21.1%
+age                           55        19.3%
+education                     38        13.3%
+gender                        35        12.3%
+health_status                 20         7.0%
+ability                       16         5.6%
+family_status                 13         4.6%
+political_identity            13         4.6%
+skin_tone                     12         4.2%
+
+============================================================
+RQ2 — AMPLIFICATION SCORES (Cleaned)
+------------------------------------------------------------
+disabled + older adult                                 5.94x
+single parent + female                                      5.18x
+lower class + single parent                               3.23x
+adolescent + female                                      1.85x
+young adult + people of color                             1.06x
+adolescent + people of color                             0.91x
+female + people of color                             0.64x
+lower class + people of color                             0.48x
+
+============================================================
+RQ3 — MEDIA SIMPLIFICATION
+------------------------------------------------------------
+Explicit: 217 | Inferred: 194
+Simplification Score: 47.2%
+
+============================================================
+RQ4 — SOURCE COVERAGE (Top 5 Oppressed)
+------------------------------------------------------------
+theguardian.com                      86.4% Oppressed
+nytimes.com                          89.1% Oppressed
+washingtonpost.com                   84.9% Oppressed
+theverge.com                         89.1% Oppressed
+wired.com                            92.7% Oppressed

@@ -3,15 +3,27 @@ Utility functions for AI incident data normalization and intersectional validati
 Centralizing this logic ensures consistency between terminal reports and graphs.
 """
 
-# Semantic overlaps that should be ignored for intersectional analysis
+# Semantic overlaps that should be ignored for intersectional analysis.
+# Each tuple is (cat1, val1, cat2, val2) — order doesn't matter, the
+# checker tests both directions.
 REDUNDANT_PAIRS = {
+    # race / skin tone overlaps
     ("race", "people of color", "skin_tone", "dark"),
     ("race", "black", "skin_tone", "dark"),
+    # heritage values that already imply race=people of color
+    ("heritage", "asian", "race", "people of color"),
+    ("heritage", "african", "race", "people of color"),
+    ("heritage", "latin american", "race", "people of color"),
+    ("heritage", "middle eastern", "race", "people of color"),
+    ("heritage", "indigenous", "race", "people of color"),
+    # age / education overlaps
     ("age", "adolescent", "education", "student"),
     ("age", "child", "education", "student"),
     ("age", "young adult", "education", "student"),
+    # ability / health status overlaps
     ("ability", "disabled", "health_status", "physically disabled"),
     ("ability", "disabled", "health_status", "disabled"),
+    ("ability", "disabled", "health_status", "chronically ill"),
 }
 
 def normalize_marker(cat, marker):

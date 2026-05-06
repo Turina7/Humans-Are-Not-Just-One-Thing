@@ -291,7 +291,7 @@ def main():
                 
                 # Mode JSON natiu de Gemini per evitar problemes de parseig
                 response = client.models.generate_content(
-                    model="gemini-1.5-flash", 
+                    model="gemini-3.1-flash-lite-preview", 
                     contents=prompt,
                     config={"response_mime_type": "application/json"}
                 )
