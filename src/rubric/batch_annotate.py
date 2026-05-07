@@ -16,77 +16,33 @@ OUTPUT_FILE = "../../data/annotations/annotations.json"
 PROGRESS_FILE = "../../data/progress/progress.json"
 # ─────────────────────────────────────────────────────────
 
-
 IDENTITY_CATEGORIES = """
-1.  Race             - Use ONLY:
-                       "People of Color", "White"
-                       Assign ONE value only per subject.
-
-2.  Gender           - Use ONLY: "Male", "Female", "other"
-                       Assign ONE value only per subject.
-
-3.  Gender Identity  - Use ONLY: "Cisgender", "Transgender", "Non-binary"
-
-4.  Class            - Use ONLY: "Upper Class", "Lower Class", "Middle Class"
-                       
-
-5.  Sexuality        - Use ONLY: "Heterosexual", "Gay"
-
-6.  Nationality      - Use country adjective only:
-                       "American", "British", "Indian" etc.
-
-7.  Ability          - Use ONLY: "Disabled"
-
-8.  Gender Expression - Use ONLY: "Masculine", "Feminine",
-                        "Gender Non-conforming"
-
-9.  Heritage         - Use ONLY: "African", "Latin American", "Asian",
-                       "Indigenous", "Middle Eastern", "European", "Other"
-
-10. Age              - Use ONLY: "Child" (0-9), "Adolescent" (10-19),
-                       "Young Adult" (20-24), "Adult" (25-59),
-                       "Older Adult" (60+)
-
-11. Appearance       - Use ONLY: "Conventionally Attractive",
-                       "Unconventionally Attractive"
-
-12. Language         - Use ONLY: "Anglophone",
-                       "English as Second Language", "Non-English Speaker"
-
-13. Skin Tone        - Use ONLY: "Light", "Dark"
-
-14. Religion         - Use religion name: "Christian", "Muslim",
-                       "Jewish", "Hindu", "Sikh" etc.
-
+1.  Race               - Use ONLY: "People of Color", "White"
+2.  Gender             - Use ONLY: "Male", "Female", "other"
+3.  Gender Identity    - Use ONLY: "Cisgender", "Transgender", "Non-binary"
+4.  Class              - Use ONLY: "Upper Class", "Lower Class", "Middle Class"
+5.  Sexuality          - Use ONLY: "Heterosexual", "Gay"
+6.  Nationality        - Use country adjective only: "American", "British", "Indian" etc.
+7.  Ability            - Use ONLY: "Disabled"
+8.  Gender Expression  - Use ONLY: "Masculine", "Feminine", "Gender Non-conforming"
+9.  Heritage           - Use ONLY: "African", "Latin American", "Asian", "Indigenous", "Middle Eastern", "European", "Other"
+10. Age                - Use ONLY: "Child" (0-9), "Adolescent" (10-19), "Young Adult" (20-24), "Adult" (25-59), "Older Adult" (60+)
+11. Appearance         - Use ONLY: "Conventionally Attractive", "Unconventionally Attractive"
+12. Language           - Use ONLY: "Anglophone", "English as Second Language", "Non-English Speaker"
+13. Skin Tone          - Use ONLY: "Light", "Dark"
+14. Religion           - Use religion name: "Christian", "Muslim", "Jewish", "Hindu", "Sikh" etc.
 15. Reproductive Status - Use ONLY: "Pregnant", "Fertile", "Infertile"
-
-16. Body Size        - Use ONLY: "Thin", "Fat", "obese"
-
-17. Education        - Use ONLY: "Student", "vocational training", "graduate from elite university", "self-taught", "no formal education"
-
-18. Immigration Status - Use ONLY: "Citizen", "Permanent Resident",
-                         "Visa Holder", "Undocumented", "Asylum Seeker"
-
-19. Geography        - Use ONLY: "Urban", "Suburban", "Rural", "Remote", "university town"
-
-20. Indigeneity      - Use ONLY: "Indigenous", "Settler descendant", "colonizer descendant", "Unknown"
-
-21. Family Status    - Use ONLY: "Single Parent", "Caregiver", "single", "married", "divorced"
-
-22. Caste            - Use ONLY: "Upper Caste", "Lower Caste",
-                       "Dalit", "Brahmin"
-
-23. Political Identity - Use ONLY: "Progressive", "Conservative",
-                         "Libertarian", "Socialist", "Activist",
-                         "Voter", "Political Elite",
-                         "Political Candidate", "Dissident"
-
-24. Health Status    - Use ONLY: "Mental Health Condition",
-                       "Chronically Ill", "Physically Disabled"
-
-25. Neurodiversity   - Use ONLY: "Autistic", "ADHD", "Dyslexic"
+16. Body Size          - Use ONLY: "Thin", "Fat", "obese"
+17. Education          - Use ONLY: "Student", "vocational training", "graduate from elite university", "self-taught", "no formal education"
+18. Immigration Status - Use ONLY: "Citizen", "Permanent Resident", "Visa Holder", "Undocumented", "Asylum Seeker"
+19. Geography          - Use ONLY: "Urban", "Suburban", "Rural", "Remote", "university town"
+20. Indigeneity        - Use ONLY: "Indigenous", "Settler descendant", "colonizer descendant", "Unknown"
+21. Family Status      - Use ONLY: "Single Parent", "Caregiver", "single", "married", "divorced"
+22. Caste              - Use ONLY: "Upper Caste", "Lower Caste", "Dalit", "Brahmin"
+23. Political Identity - Use ONLY: "Progressive", "Conservative", "Libertarian", "Socialist", "Activist", "Voter", "Political Elite", "Political Candidate", "Dissident"
+24. Health Status      - Use ONLY: "Mental Health Condition", "Chronically Ill", "Physically Disabled"
+25. Neurodiversity      - Use ONLY: "Autistic", "ADHD", "Dyslexic"
 """
-
 
 def build_prompt(incident_id, incident_title, incident_description, reports_text):
     return f"""You are an expert AI Incident Analyst. Your core expertise is the application of Kimberle Crenshaw's intersectionality theory to analyze AI incident reports.
@@ -249,18 +205,15 @@ CRITICAL RULES:
 - Return ONLY JSON, no markdown, no explanation
 """
 
-
 def load_progress():
     if os.path.exists(PROGRESS_FILE):
         with open(PROGRESS_FILE) as f:
             return set(json.load(f))
     return set()
 
-
 def save_progress(done_ids):
     with open(PROGRESS_FILE, "w") as f:
         json.dump(list(done_ids), f)
-
 
 def load_results():
     if os.path.exists(OUTPUT_FILE):
@@ -268,11 +221,9 @@ def load_results():
             return json.load(f)
     return []
 
-
 def save_results(results):
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
         json.dump(results, f, indent=2, ensure_ascii=False)
-
 
 def get_row_value(row, *possible_keys):
     normalized = {(k or "").strip().lower().lstrip("\ufeff"): v for k, v in row.items()}
@@ -281,7 +232,6 @@ def get_row_value(row, *possible_keys):
         if value is not None:
             return value
     raise KeyError(possible_keys[0])
-
 
 def read_csv_rows(path):
     last_error = None
@@ -293,7 +243,6 @@ def read_csv_rows(path):
             last_error = e
             continue
     raise last_error
-
 
 def main():
     incidents = {}
@@ -309,7 +258,8 @@ def main():
     for row in read_csv_rows(INPUT_REPORTS):
         incident_id = get_row_value(row, "incident_id")
         report_text = get_row_value(row, "text")
-        incident_reports[incident_id].append(report_text[:1500])
+        # Mantinc un límit raonable per no saturar però agafant context suficient
+        incident_reports[incident_id].append(report_text[:3000])
         source_domain = get_row_value(row, "source_domain")
         if source_domain:
             incident_sources[incident_id].add(source_domain)
@@ -331,75 +281,35 @@ def main():
         title = incident_info.get("title", "Unknown")
         description = incident_info.get("description", "")
         sources = list(incident_sources.get(incident_id, []))
-        reports_text = "\n\n---REPORT---\n".join(reports)[:6000]
+        reports_text = "\n\n---REPORT---\n".join(reports)[:15000]
 
-        try:
-            print(f"[{i+1}/{total}] Incident {incident_id} | {title[:60]}")
-            prompt = build_prompt(incident_id, title, description, reports_text)
-            response = client.models.generate_content(
-                model="gemini-3.1-flash-lite-preview", contents=prompt
-            )
-            raw = response.text.strip()
-            raw = raw.removeprefix("```json").removesuffix("```").strip()
-            parsed = json.loads(raw)
-            parsed["sources"] = sources
-            results.append(parsed)
-            done_ids.add(incident_id)
-            save_results(results)
-            save_progress(done_ids)
-            time.sleep(4)
+        # Intentem 3 vegades per incident per si falla la xarxa o el rate limit
+        for attempt in range(3):
+            try:
+                print(f"[{i+1}/{total}] Incident {incident_id} | {title[:60]} (Attempt {attempt+1})")
+                prompt = build_prompt(incident_id, title, description, reports_text)
+                
+                # Mode JSON natiu de Gemini per evitar problemes de parseig
+                response = client.models.generate_content(
+                    model="gemini-3.1-flash-lite-preview", 
+                    contents=prompt,
+                    config={"response_mime_type": "application/json"}
+                )
+                
+                parsed = json.loads(response.text)
+                parsed["sources"] = sources
+                results.append(parsed)
+                done_ids.add(incident_id)
+                save_results(results)
+                save_progress(done_ids)
+                time.sleep(2) 
+                break 
 
-        except json.JSONDecodeError as e:
-            print(f"  JSON error on incident {incident_id}: {e}")
-            continue
+            except Exception as e:
+                print(f"  Warning on incident {incident_id}: {e}")
+                time.sleep(10 * (attempt + 1))
 
-        except Exception as e:
-            print(f"  Error on incident {incident_id}: {e}")
-            time.sleep(5)
-            continue
-
-    print("\n✅ Done! Results saved to annotations_v6.json")
-
+    print("\n✅ Done! Results saved to annotations.json")
 
 if __name__ == "__main__":
-    TEST_MODE = False  # Change to False to run everything
-
-    incidents = {}
-    for row in read_csv_rows(INPUT_INCIDENTS):
-        incident_id = get_row_value(row, "incident_id")
-        incidents[incident_id] = {
-            "title": get_row_value(row, "title"),
-            "description": get_row_value(row, "description"),
-        }
-
-    incident_reports = defaultdict(list)
-    incident_sources = defaultdict(set)
-    for row in read_csv_rows(INPUT_REPORTS):
-        incident_id = get_row_value(row, "incident_id")
-        report_text = get_row_value(row, "text")
-        incident_reports[incident_id].append(report_text[:1500])
-        source_domain = get_row_value(row, "source_domain")
-        if source_domain:
-            incident_sources[incident_id].add(source_domain)
-
-    if TEST_MODE:
-        test_id = "11"
-        incident_info = incidents.get(test_id, {})
-        reports_text = "\n\n---REPORT---\n".join(incident_reports[test_id])[:6000]
-        sources = list(incident_sources.get(test_id, []))
-
-        prompt = build_prompt(
-            test_id,
-            incident_info.get("title", "Unknown"),
-            incident_info.get("description", ""),
-            reports_text,
-        )
-        response = client.models.generate_content(
-            model="gemini-3.1-flash-lite-preview", contents=prompt
-        )
-        raw = response.text.strip().removeprefix("```json").removesuffix("```").strip()
-        parsed = json.loads(raw)
-        parsed["sources"] = sources
-        print(json.dumps(parsed, indent=2, ensure_ascii=False))
-    else:
-        main()
+    main()

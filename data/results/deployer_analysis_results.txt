@@ -1,0 +1,85 @@
+============================================================
+ 🏢 DEPLOYER ANALYSIS: WHO IS BEHIND THE ALGORITHMS?
+============================================================
+
+🚨 TOP 10 OFFENDERS (Entities causing the most identity-based harm):
+------------------------------------------------------------
+  • 15 cases | Amazon
+  • 15 cases | Microsoft
+  • 11 cases | OpenAI
+  • 10 cases | Uber
+  • 9 cases | ShotSpotter
+  • 8 cases | Department for Work and Pensions (DWP)
+  • 5 cases | Clearview AI
+  • 4 cases | Bamboo Health
+  • 4 cases | Honorlock
+  • 4 cases | UK Home Office
+
+
+⚖️ WHO DISCRIMINATES MORE? (Corporate vs. State by Category):
+------------------------------------------------------------
+ 📂 ABILITY (16 total cases)
+    Private Companies : 56.2% (9 cases)
+    State/Non-Profit  : 43.8% (7 cases)
+
+ 📂 AGE (55 total cases)
+    Private Companies : 70.9% (39 cases)
+    State/Non-Profit  : 29.1% (16 cases)
+
+ 📂 CLASS (62 total cases)
+    Private Companies : 74.2% (46 cases)
+    State/Non-Profit  : 25.8% (16 cases)
+
+ 📂 EDUCATION (41 total cases)
+    Private Companies : 80.5% (33 cases)
+    State/Non-Profit  : 19.5% (8 cases)
+
+ 📂 FAMILY STATUS (13 total cases)
+    Private Companies : 46.2% (6 cases)
+    State/Non-Profit  : 53.8% (7 cases)
+
+ 📂 GENDER (37 total cases)
+    Private Companies : 64.9% (24 cases)
+    State/Non-Profit  : 35.1% (13 cases)
+
+ 📂 GEOGRAPHY (24 total cases)
+    Private Companies : 70.8% (17 cases)
+    State/Non-Profit  : 29.2% (7 cases)
+
+ 📂 HEALTH STATUS (21 total cases)
+    Private Companies : 57.1% (12 cases)
+    State/Non-Profit  : 42.9% (9 cases)
+
+ 📂 HERITAGE (6 total cases)
+    Private Companies : 33.3% (2 cases)
+    State/Non-Profit  : 66.7% (4 cases)
+
+ 📂 IMMIGRATION STATUS (6 total cases)
+    Private Companies : 33.3% (2 cases)
+    State/Non-Profit  : 66.7% (4 cases)
+
+ 📂 LANGUAGE (8 total cases)
+    Private Companies : 100.0% (8 cases)
+    State/Non-Profit  : 0.0% (0 cases)
+
+ 📂 NATIONALITY (13 total cases)
+    Private Companies : 69.2% (9 cases)
+    State/Non-Profit  : 30.8% (4 cases)
+
+ 📂 POLITICAL IDENTITY (13 total cases)
+    Private Companies : 69.2% (9 cases)
+    State/Non-Profit  : 30.8% (4 cases)
+
+ 📂 RACE (68 total cases)
+    Private Companies : 55.9% (38 cases)
+    State/Non-Profit  : 44.1% (30 cases)
+
+ 📂 RELIGION (5 total cases)
+    Private Companies : 40.0% (2 cases)
+    State/Non-Profit  : 60.0% (3 cases)
+
+ 📂 SKIN TONE (13 total cases)
+    Private Companies : 61.5% (8 cases)
+    State/Non-Profit  : 38.5% (5 cases)
+
+✅ Analysis complete! Processed 411 direct-harm incidents.
