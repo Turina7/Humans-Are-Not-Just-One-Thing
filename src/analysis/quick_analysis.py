@@ -127,7 +127,7 @@ mask = np.triu(np.ones_like(matrix, dtype=bool), k=0)
 matrix_masked = np.where(mask, np.nan, matrix.astype(float))
 
 fig, ax = plt.subplots(figsize=(10, 8))
-im = ax.imshow(matrix_masked, cmap="Blues")
+im = ax.imshow(matrix_masked, cmap="Greys")
 
 tick_labels = [c.replace("_", " ").title() for c in all_cats]
 ax.set_xticks(range(len(all_cats)))
