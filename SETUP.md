@@ -1,107 +1,182 @@
-# Setup & Execution Guide
+# Setup Guide
 
-This guide explains how to set up the environment and reproduce the research analysis before running any scripts.
-
----
-
-## 1. Prerequisites
-
-- **Python:** Version 3.8 or higher.
-- **Git:** Installed on your local machine.
+This guide walks you through installing dependencies, configuring API keys, and running the full pipeline from raw data to published figures.
 
 ---
 
-## 2. Step-by-Step Installation
+## Requirements
 
-### Step 1: Clone the Repository
+- Python 3.10 or higher
+- A [Google Gemini API key](https://aistudio.google.com/app/apikey) (for the annotation step only)
+- The raw data files — `workplace_reports.csv` and `workplace_incidents.csv` — placed in `data/`
 
-Open your terminal and clone the project using HTTPS (recommended for external users):
+---
+
+## 1. Clone the repository
 
 ```bash
-git clone https://github.com/Turina7/Humans-Are-Not-Just-One-Thing.git
+git clone https://github.com/your-username/Humans-Are-Not-Just-One-Thing.git
 cd Humans-Are-Not-Just-One-Thing
 ```
 
-Alternatively, if you use SSH:
+---
+
+## 2. Create and activate a virtual environment
 
 ```bash
-git clone git@github.com:Turina7/Humans-Are-Not-Just-One-Thing.git
+python -m venv .venv
+source .venv/bin/activate        # Linux / macOS
+# .venv\Scripts\activate         # Windows
 ```
 
-### Step 2: Create a Virtual Environment
+---
 
-```bash
-# Create the environment
-python3 -m venv venv
-
-# Activate it
-# On macOS/Linux:
-source venv/bin/activate
-
-# On Windows:
-.\venv\Scripts\activate
-```
-
-### Step 3: Install Required Libraries
-
-Install Pandas, Matplotlib, Seaborn, and other necessary research tools:
+## 3. Install dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
----
+The main dependencies are:
 
-## 3. Mandatory Project Structure
-
-Before executing scripts, verify that the project structure is intact:
-
-- `data/annotations_v2.json` — The processed dataset with 285 causal entries.
-- `data/figures/` — Folder where visualization PNGs are stored.
-- `src/` — Folder containing the Python source code.
-
----
-
-## 4. Configuration (API Keys)
-
-If you wish to use the LLM-based annotation tools in the `src/` folder, you will need an Anthropic API key:
-
-1. Create a file named `.env` in the root directory.
-2. Add your key: `ANTHROPIC_API_KEY=your_key_here`
-
-> **Note:** This is **NOT** required to run the current analysis on existing data.
+| Package | Used by |
+|---|---|
+| `google-genai` | `batch_annotate.py` — Gemini API client |
+| `python-dotenv` | `batch_annotate.py` — loads `.env` API key |
+| `pandas` | `data_import.py` — legacy dataset loader |
+| `matplotlib` | `quick_analysis.py` — figure generation |
+| `numpy` | `quick_analysis.py` — heatmap matrix |
 
 ---
 
-## 5. Running the Analysis
+## 4. Configure your API key
 
-Once the setup is complete, navigate to the `src/` directory:
+Create a `.env` file in the project root:
 
 ```bash
-cd src
+touch .env
 ```
 
-### A. Quantitative Analysis (RQ1 – RQ4)
+Add your Gemini key:
 
-This script calculates prevalence, intersectional scores, and media bias. Results are printed to the terminal:
-
-```bash
-python3 analysis_rq.py
+```
+GEMINI_API_KEY=your_key_here
 ```
 
-### B. Visualizations
+> The `.env` file is read automatically by `batch_annotate.py` via `python-dotenv`. Never commit this file to version control.
 
-This script generates all charts and the intersectional heatmap in the `data/figures/` folder:
+---
+
+## 5. Prepare the data directories
+
+The annotation and analysis scripts expect certain subdirectories to exist. Create them if they are not already present:
 
 ```bash
-python3 quick_analysis.py
+mkdir -p data/annotations data/progress data/figures data/results data/results/case_studies
 ```
 
 ---
 
-## 6. Research Context (CQ Filter)
+## 6. Running the pipeline
 
-All analysis in this project is based on a **Causal Filter**:
+### Step 1 — Annotate incidents (LLM extraction)
 
-- **CQ1:** Did this incident happen because the AI Subject was [identity value]? *(Filter: YES)*
-- **CQ2:** Would this incident still have happened if the AI Subject was not [identity value]? *(Filter: NO)*
+This step reads `data/workplace_reports.csv` and `data/workplace_incidents.csv`, sends each incident to the Gemini API, and writes results to `data/annotations/annotations.json`. Progress is checkpointed after every incident so the script can be safely interrupted and resumed.
+
+```bash
+cd src/rubric
+python batch_annotate.py
+```
+
+> **Cost & time:** Annotation runs once. With ~285 incidents and a 2-second sleep between calls, expect around 15–20 minutes for a full run. Existing annotations are skipped automatically on resume.
+
+---
+
+### Step 2 — Generate figures
+
+Produces the four publication-ready graphs in `data/figures/`.
+
+```bash
+cd src/analysis
+python quick_analysis.py
+```
+
+Output files:
+
+```
+data/figures/
+├── graph1_category_prevalence.png
+├── graph2_intersection_heatmap.png
+├── graph3_top_value_pairs.png
+└── graph4_amplification.png
+```
+
+---
+
+### Step 3 — Run the RQ analysis report
+
+Prints a consolidated breakdown of all four research questions to the terminal.
+
+```bash
+python analysis_rq.py
+```
+
+---
+
+### Step 4 — Run optional analysis scripts
+
+These can be run in any order after annotation is complete.
+
+```bash
+# Per-category qualitative breakdown → data/results/qualitative_zoom_results.txt
+python qualitative_zoom.py
+
+# Corporate vs. state deployer audit → data/results/deployer_analysis_results.txt
+python deployer_analysis.py
+
+# Keyword analysis of harm descriptions → data/results/keyword_analysis_results.txt
+python text_mining.py
+
+# Interactive case study exporter → data/results/case_studies/Incident_<ID>_Case_Study.md
+python case_exporter.py
+```
+
+---
+
+## Typical workflow summary
+
+```bash
+# One-time setup
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+echo "GEMINI_API_KEY=your_key_here" > .env
+mkdir -p data/annotations data/progress data/figures data/results/case_studies
+
+# Annotate (run once, resumable)
+cd src/rubric && python batch_annotate.py
+
+# Analyse
+cd ../analysis
+python quick_analysis.py       # figures
+python analysis_rq.py          # terminal report
+python qualitative_zoom.py     # qualitative breakdown
+python deployer_analysis.py    # deployer audit
+python text_mining.py          # keyword analysis
+python case_exporter.py        # interactive case export
+```
+
+---
+
+## Troubleshooting
+
+**`ModuleNotFoundError: No module named 'utils'`**
+Run analysis scripts from inside `src/analysis/`, not from the project root. The scripts use relative imports.
+
+**`KeyError` on CSV columns**
+The CSV reader in `batch_annotate.py` strips BOM characters and normalises column names automatically. If you are using a custom CSV, ensure column names match `incident_id`, `title`, `description`, `text`, and `source_domain`.
+
+**Gemini API rate limit errors**
+The script sleeps 2 seconds between calls and retries up to 3 times with exponential back-off. If you hit persistent quota errors, increase `time.sleep(2)` in `batch_annotate.py`.
+
+**Annotation already complete but you want to re-run**
+Delete or clear `data/progress/progress.json` and `data/annotations/annotations.json`, then rerun `batch_annotate.py`.
