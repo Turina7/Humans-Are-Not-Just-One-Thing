@@ -1,79 +1,108 @@
-# Humans-Are-Not-Just-One-Thing
-### Systematic study of intersectional AI harms in workplace settings
-**Politecnico di Torino · Engineering AI Systems · 2025/2026**
+# Humans Are Not Just One Thing
+
+**Systematic Study of Intersectional AI Harms in Workplace Settings**
+
+A research pipeline for causally extracting, annotating, and analysing intersectional identity-based harms in AI incident reports. This project produced the dataset and results behind the paper *"Humans Are Not Just One Thing"* (EAI '26, Politecnico di Torino).
 
 ---
 
-## 🚀 The "MarcChanges" Evolution
-We have upgraded the project from a raw dataset to a **causal-driven analytical pipeline**. The current architecture ensures that every identity marker analyzed is not just a correlation, but a direct cause of the AI harm documented, following Kimberlé Crenshaw’s intersectionality principles.
+## What this project does
 
-### 🛠 Key Technical Upgrades
-* **Causal Filtering (CQ1 & CQ2):** Rigorous double-check system to verify causal links for every identity marker.
-* **Causal Outcome Mapping:** Every harm follows the template: `Because of [identity], the subject was [harmful outcome]`.
-* **Semantic Cleaning & Deduplication:** Implemented logic to filter redundant overlaps (e.g., *Race: PoC* vs *Skin Tone: Dark*) to ensure high-quality intersectional results.
-* **Centralized Logic (`utils.py`):** Refactored the codebase to ensure a single source of truth for causal marker extraction.
+Most AI fairness audits examine one identity axis at a time — race *or* gender *or* class. This pipeline treats people the way they actually exist: as carriers of multiple, simultaneous identities. It:
 
----
-
-## 📊 Research Framework & Results
-Our pipeline answers four core Research Questions (RQs) by filtering out noise and focusing on intersectional causality.
-
-### [Phase 0] The Causal Gate (CQ1 + CQ2)
-Only data where **CQ1=Yes** and **CQ2=No** is retained for analysis.
-* *See: `data/figures/graph0_CQ_filter_impact.png`*
-
-### [RQ1] Category Frequency
-**Social Class** and **Race** are the leading causal factors in workplace AI incidents.
-* *See: `data/figures/graph1_RQ1_frequency.png`*
-
-### [RQ2] Intersectional Overlap & Amplification
-Identification of "risk clusters" (e.g., *Disability + Chronic Illness*) where harm is mathematically amplified.
-* *See: `data/figures/graph4_amplification.png` & `data/figures/graph2_RQ2_heatmap.png`*
-
-### [RQ3] Media Representation & Power Dynamics
-* **52.3%** of harms are **Inferred**, showing how media often obscures victim identities.
-* Stark disparity in coverage between *Privileged* and *Oppressed* groups.
+1. **Annotates** raw workplace AI incident reports using an LLM-assisted causal extraction pipeline grounded in Kimberlé Crenshaw's intersectionality theory.
+2. **Filters** identity markers with a double counterfactual gate (CQ1 + CQ2) so only identities that *caused* the harm are retained.
+3. **Quantifies** intersectional amplification — how much riskier a combination of identities is compared to what independent rates would predict.
+4. **Audits** media coverage to measure how often causally relevant identities are omitted from press reporting.
 
 ---
 
-## 🔍 The Deep-Dive Toolkit (Qualitative Analysis)
-Beyond metrics, we developed a specialized toolkit in `src/analysis/` to unpack the human reality behind the numbers.
+## Project structure
 
-### 📂 Qualitative Zoom
-A full breakdown of all **411 direct-harm markers**.
-- **Output:** `data/results/qualitative_zoom_results.txt`.
-- **Insight:** Organizes every incident by category, showing the "Real Evidence" used for classification.
-
-### 🏢 Deployer Analysis ("The Hall of Shame")
-An analysis of the entities responsible for the harmful AI deployments.
-- **Top Offenders:** Amazon, Microsoft, and OpenAI lead the ranking.
-- **Corporate vs. State:** Reveals that **Class (74%)** harm is driven by companies, while **Immigration (66%)** harm is driven by the State.
-
-### 📝 Vocabulary of Oppression (Text Mining)
-Automated extraction of the lexicon used to describe AI harm.
-- **Output:** `data/results/keyword_analysis_results.txt`.
-- **Pattern:** Race incidents correlate with *'facial'* and *'arrested'*, while Class incidents correlate with *'income'* and *'workers'*.
-
-### 📄 Case Study Exporter
-Interactive tool to generate beautifully formatted Markdown files for individual incidents.
-- **Output:** `data/results/case_studies/`.
+```
+Humans-Are-Not-Just-One-Thing/
+├── README.md
+├── SETUP.md
+├── requirements.txt
+├── data/
+│   ├── workplace_reports.csv          # 58,000+ raw news articles
+│   ├── workplace_incidents.csv        # Pre-aggregated incident summaries
+│   ├── fitered_dataset.csv            # Filtered workplace-relevant subset
+│   ├── incidents_full_set_27112025_gpt5_1.json  # Legacy GPT-5 annotations
+│   ├── migrate_json.py                # Schema migration helper
+│   ├── annotations/
+│   │   └── annotations.json           # Main output: LLM-annotated incidents
+│   ├── progress/                      # Checkpoints for batch annotation runs
+│   ├── figures/                       # Generated graphs (PNG)
+│   └── results/                       # Generated analysis reports (TXT/MD)
+└── src/
+    ├── rubric/
+    │   └── batch_annotate.py          # LLM annotation pipeline (Gemini API)
+    └── analysis/
+        ├── utils.py                   # Shared normalisation & validation logic
+        ├── analysis_rq.py             # RQ1–RQ4 terminal summary
+        ├── quick_analysis.py          # Generates all four paper figures
+        ├── qualitative_zoom.py        # Per-category qualitative breakdown
+        ├── deployer_analysis.py       # Corporate vs. state deployer audit
+        ├── text_mining.py             # Keyword analysis of harm descriptions
+        ├── case_exporter.py           # Exports individual incidents as Markdown
+        └── data_import.py             # Legacy dataset loader with causal filter
+```
 
 ---
 
-## 📂 Project Structure
-```text
-src/
-├── batch_annotate.py     # LLM engine with causal prompts (CQ1/CQ2)
-├── analysis_rq.py        # Computes mathematical scores and metrics
-├── quick_analysis.py     # Generates the final research figures (RQ1-RQ4)
-└── analysis/             # Deep-Dive Toolkit
-    ├── utils.py          # Centralized causal logic & redundancy filters
-    ├── deployer_analysis.py # Corporate vs. State harm analysis
-    ├── text_mining.py    # Vocabulary & keyword extraction
-    ├── case_exporter.py  # Interactive .md case study generator
-    └── qualitative_zoom.py # Qualitative evidence packer
-data/
-├── workplace_reports.csv  # Raw dataset (58k+ entries)
-├── annotations.json      # Processed causal dataset
-├── results/              # Qualitative reports and text mining results
-└── figures/              # Generated research graphs
+## Key concepts
+
+| Term | Definition |
+|---|---|
+| **CQ1** | *"Did this incident happen because the subject was [identity]?"* — Yes only if the AI system's behaviour changed due to that identity. |
+| **CQ2** | *"Would this incident still have happened if the subject were not [identity]?"* — No only if a person with a different identity would have been spared. |
+| **DirectScore = Yes** | CQ1 passed: identity directly shaped the harm. |
+| **AlternateScore = No** | CQ2 passed: harm required that specific identity. |
+| **Amplification Score** | `Obs(a ∩ b) / (P(a) · P(b) · N)` — how much more often a pair of identities co-occurs in harm than chance predicts. A score above 1.0× proves intersectional compounding. |
+| **Media Erasure Index (E)** | `|Inferred| / (|Explicit| + |Inferred|)` — the fraction of causally relevant identities invisible in press coverage. |
+
+---
+
+## Main findings (EAI '26)
+
+- **285 unique workplace incidents**, yielding **567 causally verified identity-harm links** across **15 identity categories**.
+- **Race** (23.1%) and **Class** (22.9%) are the leading causal factors; together they account for nearly half of all verified harms.
+- Every statistically reliable identity pair exceeds the 1.0× independent baseline. **Disabled + Older Adult** reaches **5.94×**.
+- The **Media Erasure Index is 48.8%**: nearly half of causally relevant identities are never named in the press. Class is the starkest blind-spot — *lower class* appears 104 times as an inferred marker but only 10 times explicitly.
+
+---
+
+## Scripts at a glance
+
+### `src/rubric/batch_annotate.py`
+Calls the Gemini API to annotate each incident in `workplace_reports.csv` and `workplace_incidents.csv`. Saves results incrementally to `data/annotations/annotations.json` and checkpoints progress so interrupted runs can resume safely.
+
+### `src/analysis/quick_analysis.py`
+Produces the four publication figures saved to `data/figures/`:
+- `graph1_category_prevalence.png` — bar chart of top identity categories
+- `graph2_intersection_heatmap.png` — co-occurrence heatmap
+- `graph3_top_value_pairs.png` — most frequent intersecting value pairs
+- `graph4_amplification.png` — amplification scores with 1.0× baseline
+
+### `src/analysis/analysis_rq.py`
+Prints a consolidated terminal report covering RQ1 (category prevalence), RQ2 (amplification), RQ3 (media simplification), and RQ4 (source power dynamics).
+
+### `src/analysis/qualitative_zoom.py`
+Writes a detailed per-category breakdown of every harm case to `data/results/qualitative_zoom_results.txt`.
+
+### `src/analysis/deployer_analysis.py`
+Identifies which organisations caused the most identity-based harms and compares corporate vs. state deployers by category. Output: `data/results/deployer_analysis_results.txt`.
+
+### `src/analysis/text_mining.py`
+Extracts the most frequent words in harm descriptions per identity category. Output: `data/results/keyword_analysis_results.txt`.
+
+### `src/analysis/case_exporter.py`
+Interactive script: enter an incident ID and it exports a formatted Markdown case study to `data/results/case_studies/`. Useful for thesis annexes.
+
+---
+
+
+## License
+
+See individual source files. Dataset derived from the [AI Incident Database](https://incidentdatabase.ai/) (AIID) — please respect their terms of use when redistributing annotations.
