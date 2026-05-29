@@ -269,4 +269,91 @@ print("  Saved graph4_amplification.png")
 # larger incident set or a re-run with a more permissive rubric.
 # Discuss in the report's limitations section.
 
+# ── GRAPH 5: Media Erasure — Explicit/Inferred × Oppressed/Privileged ──
+# A pie chart (or donut) showing the four segments:
+#   • Explicit   + Oppressed
+#   • Explicit   + Privileged
+#   • Inferred   + Oppressed
+#   • Inferred   + Privileged
+# Counts operate at the MARKER level (one entry per identity marker per
+# subject), not per incident, to match the paper's Table 6 / Table 7
+# methodology (828 total markers, E = 48.8%).
+print("Building Graph 5 — Media Erasure pie (Explicit/Inferred × Power)...")
+
+seg_counts = {
+    ("Explicit",  "Oppressed"):  0,
+    ("Explicit",  "Privileged"): 0,
+    ("Inferred",  "Oppressed"):  0,
+    ("Inferred",  "Privileged"): 0,
+}
+
+for rec in data:
+    for subj in rec.get("subjects", []):
+        for cat, marker_data in subj.get("identity_markers", {}).items():
+            # Support both dict-of-dicts and flat-dict schemas.
+            if isinstance(marker_data, dict):
+                mtype  = marker_data.get("marker_type", "")
+                power  = marker_data.get("power_position", "")
+                # Retain only markers that passed the causal gate.
+                direct = marker_data.get("DirectScore", "No")
+                alt    = marker_data.get("AlternateScore", "Yes")
+                if direct != "Yes" or alt != "No":
+                    continue
+                key = (mtype, power)
+                if key in seg_counts:
+                    seg_counts[key] += 1
+
+# ── Greyscale palette ── four tones from near-black to light grey
+GREY_DARK    = "#1a1a1a"   # Inferred  + Oppressed  (most hidden, most harmed)
+GREY_MID1    = "#555555"   # Explicit  + Oppressed
+GREY_MID2    = "#999999"   # Inferred  + Privileged
+GREY_LIGHT   = "#cccccc"   # Explicit  + Privileged
+
+seg_labels = [
+    "Inferred\nOppressed",
+    "Inferred\nPrivileged",
+    "Explicit\nOppressed",
+    "Explicit\nPrivileged",
+]
+seg_keys = [
+    ("Inferred",  "Oppressed"),
+    ("Inferred",  "Privileged"),
+    ("Explicit",  "Oppressed"),
+    ("Explicit",  "Privileged"),
+]
+seg_colors = [GREY_DARK, GREY_MID1, GREY_MID2, GREY_LIGHT]
+seg_values = [seg_counts[k] for k in seg_keys]
+seg_total   = sum(seg_values)
+
+# Slight explode on the two "Inferred" slices to highlight the erasure gap.
+explode = [0.06, 0, 0.06, 0]
+
+fig, ax = plt.subplots(figsize=(8, 8))
+wedges, texts, autotexts = ax.pie(
+    seg_values,
+    labels=seg_labels,
+    colors=seg_colors,
+    explode=explode,
+    autopct=lambda p: f"{p:.1f}%\n(n={int(round(p * seg_total / 100))})",
+    pctdistance=0.68,
+    startangle=90,
+    wedgeprops=dict(edgecolor="white", linewidth=2),
+    textprops=dict(fontsize=14),
+)
+
+# Make percentage labels inside dark wedges white for legibility.
+for at, color in zip(autotexts, seg_colors):
+    lum = int(color[1:3], 16)  # red channel ≈ luminance for grey tones
+    at.set_color("white" if lum < 100 else "black")
+    at.set_fontsize(13)
+
+for t in texts:
+    t.set_fontsize(14)
+
+plt.tight_layout()
+plt.savefig(OUTPUT_DIR / "graph5_media_erasure_pie.png", dpi=150)
+plt.close()
+print("  Saved graph5_media_erasure_pie.png")
+
+
 print(f"\n✅ All graphs saved to {OUTPUT_DIR}")
