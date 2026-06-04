@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 from collections import Counter, defaultdict
 from itertools import combinations
-from utils import get_causal_markers, is_valid_intersection
+from utils import get_causal_markers, is_valid_intersection, normalize_marker
 
 DATA_PATH = Path("../../data/annotations/annotations.json")
 
@@ -53,7 +53,7 @@ for rec in data:
             if str(v.get("DirectScore", "")).strip().lower() != "yes":
                 continue
 
-            val = str(v.get("value", cat)).strip()
+            val = normalize_marker(cat, str(v.get("marker", cat)).strip())
             mt  = str(v.get("marker_type", "")).strip().lower()
             if mt == "explicit":
                 explicit += 1
